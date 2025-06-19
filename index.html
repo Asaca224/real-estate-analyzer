@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real Estate Investment Analyzer</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 p-6">
+  <main class="max-w-5xl mx-auto space-y-6">
+    <h1 class="text-3xl font-bold text-center">📊 Real Estate Investment Analyzer</h1>
+
+    <section class="bg-white p-6 rounded-xl shadow space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <input id="zip" class="border p-2 rounded" placeholder="Enter ZIP Code">
+        <select id="strategy" class="border p-2 rounded">
+          <option value="LTR">Long-Term Rental</option>
+          <option value="STR">Short-Term Rental</option>
+          <option value="BRRR">BRRR</option>
+          <option value="FLIP">Fix & Flip</option>
+        </select>
+        <input id="price" class="border p-2 rounded" type="number" placeholder="Price ($)" value="800000">
+        <input id="rent" class="border p-2 rounded" type="number" placeholder="Rent ($)" value="3200">
+      </div>
+      <div class="pt-4 border-t">
+        <p><strong>Est. Monthly Payment:</strong> <span id="monthlyPayment">$0</span></p>
+        <p><strong>Net Monthly Cash Flow:</strong> <span id="cashFlow">$0</span></p>
+      </div>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-4">📈 Cash Flow Chart</h2>
+      <canvas id="chart" height="200"></canvas>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-4">🏡 Sample Listings</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-gray-100 p-4 rounded">
+          <p class="font-bold text-sm">123 Palm Ave</p>
+          <p>$775,000 · 3bd · 2ba</p>
+          <p class="text-green-600">+275/mo</p>
+        </div>
+        <div class="bg-gray-100 p-4 rounded">
+          <p class="font-bold text-sm">456 Oak Dr</p>
+          <p>$890,000 · 4bd · 2ba</p>
+          <p class="text-red-600">-85/mo</p>
+        </div>
+        <div class="bg-gray-100 p-4 rounded">
+          <p class="font-bold text-sm">789 Sunset Blvd</p>
+          <p>$1.1M · 5bd · 3ba</p>
+          <p class="text-green-600">+195/mo</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const monthlyPaymentEl = document.getElementById("monthlyPayment");
+    const cashFlowEl = document.getElementById("cashFlow");
+    const priceInput = document.getElementById("price");
+    const rentInput = document.getElementById("rent");
+
+    function updateMetrics() {
+      const price = parseFloat(priceInput.value);
+      const rent = parseFloat(rentInput.value);
+      const payment = ((price * 0.8 * 0.065) / 12).toFixed(0);
+      const net = (rent - payment).toFixed(0);
+
+      monthlyPaymentEl.textContent = `$${payment}`;
+      cashFlowEl.textContent = `$${net}`;
+
+      chart.data.datasets[0].data = [rent, payment, net];
+      chart.update();
+    }
+
+    priceInput.addEventListener("input", updateMetrics);
+    rentInput.addEventListener("input", updateMetrics);
+
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Rent', 'Mortgage', 'Cash Flow'],
+        datasets: [{
+          label: 'Monthly ($)',
+          data: [0, 0, 0],
+          backgroundColor: ['#3b82f6', '#f87171', '#10b981']
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    updateMetrics();
+  </script>
+</body>
+</html>
